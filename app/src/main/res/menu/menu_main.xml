@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="myhexaville.com.androidfirebase.MainActivity">
+    <item
+        android:id="@+id/create_user_new_york"
+        android:orderInCategory="100"
+        android:title="Create User In New York"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/create_user_boston"
+        android:orderInCategory="100"
+        android:title="Create User In Boston, MA"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/create_user_fort_lauderdale"
+        android:orderInCategory="100"
+        android:title="Create User In Fort Lauderdale, FL"
+        app:showAsAction="never"/>
+</menu>
