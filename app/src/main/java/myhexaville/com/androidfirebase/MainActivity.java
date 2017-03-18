@@ -260,6 +260,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void readRandom(View view) {
+        if (mUsers.size() == 0) {
+            Toast.makeText(
+                    this,
+                    "Will print random user location when you add one close to you. Open Menu"
+                    , LENGTH_SHORT).show();
+            return;
+        }
         int randomPosition = (int) (Math.random() * mUsers.size());
         User user = mAdapter.getUser(randomPosition);
         Toast.makeText(
