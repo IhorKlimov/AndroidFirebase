@@ -16,36 +16,33 @@
 
 package myhexaville.com.androidfirebase
 
+import com.firebase.geofire.GeoLocation
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.ServerValue.TIMESTAMP
 import myhexaville.com.androidfirebase.Constants.NAMES
 
-class User {
-    var name: String? = null
-    var age: Int = 0
-    var timestamp: Any? = null
-    @Exclude
-    var id: String? = null
-
-    constructor() {}
-
-    constructor(name: String, age: Int, timestamp: Any) {
-        this.name = name
-        this.age = age
-        this.timestamp = timestamp
-    }
+/*
+* Default constructor which is required for Firebase models is gerenarad by default
+* */
+class User(
+        var name: String? = null,
+        var age: Int? = null,
+        var timestamp: Any? = null,
+        var latitude: Double? = null,
+        var longitude: Double? = null,
+        @Exclude var id: String? = null) {
 
     companion object {
-        fun randomUser(): User {
+        fun randomUser(location: GeoLocation): User {
             val name = randomName
             val age = randomAge
-            return User(name, age, TIMESTAMP)
+            return User(name, age, TIMESTAMP, location.latitude, location.longitude, "0")
         }
 
-         val randomName: String
+        val randomName: String
             get() = NAMES[(Math.random() * NAMES.size).toInt()]
 
-         val randomAge: Int
+        val randomAge: Int
             get() = (Math.random() * 30).toInt() + 10
     }
 
@@ -63,4 +60,5 @@ class User {
     override fun hashCode(): Int {
         return id?.hashCode() ?: 0
     }
+
 }

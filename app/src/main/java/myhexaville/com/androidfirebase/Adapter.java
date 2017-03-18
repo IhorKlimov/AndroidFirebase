@@ -23,13 +23,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.firebase.geofire.GeoLocation;
+
 import java.util.List;
 
 import static myhexaville.com.androidfirebase.Util.sizeOf;
 
-/**
- * Created with love by ihor on 2017-02-03.
- */
 public class Adapter extends RecyclerView.Adapter<Holder> {
     private Context mContext;
     private List<User> mUsers;
@@ -65,4 +64,13 @@ public class Adapter extends RecyclerView.Adapter<Holder> {
         mUsers = list;
         notifyDataSetChanged();
     }
+
+    public User getUser(int position) {
+        if (position > mUsers.size() - 1) {
+            return new User();
+        } else {
+            return mUsers.get(position);
+        }
+    }
+
 }

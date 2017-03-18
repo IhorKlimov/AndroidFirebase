@@ -19,16 +19,27 @@ package myhexaville.com.androidfirebase;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import myhexaville.com.androidfirebase.databinding.ListItemBinding;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 /**
  * Created with love by ihor on 2017-02-03.
  */
 public class Holder extends RecyclerView.ViewHolder {
     ListItemBinding binding;
+
     public Holder(View itemView) {
         super(itemView);
         binding = DataBindingUtil.bind(itemView);
+        itemView.setOnClickListener(v -> {
+            User user = binding.getUser();
+            Toast.makeText(
+                    itemView.getContext(),
+                    "Location of " + user.getName() + " is " + user.getLatitude() + " " + user.getLongitude()
+                    , LENGTH_SHORT).show();
+        });
     }
 }

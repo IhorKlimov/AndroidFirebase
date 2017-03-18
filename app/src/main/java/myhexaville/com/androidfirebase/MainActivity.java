@@ -7,6 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -24,10 +26,9 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Flowable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import myhexaville.com.androidfirebase.databinding.ActivityMainBinding;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static io.reactivex.BackpressureStrategy.DROP;
 import static myhexaville.com.androidfirebase.Constants.BOSTON_MA;
 import static myhexaville.com.androidfirebase.Constants.FORT_LAUDERDALE_FL;
@@ -232,12 +233,12 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Saves user to database and his location to geofire using RxJava 2
-     * */
+     */
     private void createUser(GeoLocation location) {
         Flowable.just(1)
                 .map(ignore -> {
                     DatabaseReference user = mDatabase.child("users").push();
-                    user.setValue(User.Companion.randomUser());
+                    user.setValue(User.Companion.randomUser(location));
                     return user.getKey();
                 })
                 .flatMap(userId -> Flowable.create(
@@ -258,4 +259,12 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+    public void readRandom(View view) {
+        int randomPosition = (int) (Math.random() * mUsers.size());
+        User user = mAdapter.getUser(randomPosition);
+        Toast.makeText(
+                this,
+                "Location of " + user.getName() + " is " + user.getLatitude() + " " + user.getLongitude()
+                , LENGTH_SHORT).show();
+    }
 }
