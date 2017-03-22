@@ -25,13 +25,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.reactivex.Flowable;
 import myhexaville.com.androidfirebase.databinding.ActivityMainBinding;
+import myhexaville.com.androidfirebase.retrofit.FirebaseApi;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.widget.Toast.LENGTH_SHORT;
-import static io.reactivex.BackpressureStrategy.DROP;
+import static com.google.firebase.database.ServerValue.TIMESTAMP;
 import static myhexaville.com.androidfirebase.Constants.BOSTON_MA;
 import static myhexaville.com.androidfirebase.Constants.FORT_LAUDERDALE_FL;
+import static myhexaville.com.androidfirebase.Constants.NAMES;
 import static myhexaville.com.androidfirebase.Constants.NEW_YORK;
 
 
@@ -235,20 +240,38 @@ public class MainActivity extends AppCompatActivity {
      * Saves user to database and his location to geofire using RxJava 2
      */
     private void createUser(GeoLocation location) {
-        Flowable.just(1)
-                .map(ignore -> {
-                    DatabaseReference user = mDatabase.child("users").push();
-                    user.setValue(User.Companion.randomUser(location));
-                    return user.getKey();
-                })
-                .flatMap(userId -> Flowable.create(
-                        e -> mGeofire.setLocation(userId, location,
-                                (key, error) -> {
-                                    e.onNext(key);
-                                    e.onComplete();
-                                }), DROP))
-                .subscribe();
+        User user = User.Companion.randomUser(location);
+        FirebaseApi.getInstance().addUser(user).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Log.d(LOG_TAG, "onResponse: Success");
+                } else {
+                    Log.d(LOG_TAG, "onResponse: Unsuccessful");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e(LOG_TAG, "onFailure: ", t);
+            }
+        });
     }
+
+//        Flowable.just(1)
+//                .map(ignore -> {
+//                    DatabaseReference user = mDatabase.child("users").push();
+//                    user.setValue(User.Companion.randomUser(location));
+//                    return user.getKey();
+//                })
+//                .flatMap(userId -> Flowable.create(
+//                        e -> mGeofire.setLocation(userId, location,
+//                                (key, error) -> {
+//                                    e.onNext(key);
+//                                    e.onComplete();
+//                                }), DROP))
+//                .subscribe();
+//}
 
     private int getUserPosition(String id) {
         for (int i = 0; i < mUsers.size(); i++) {
