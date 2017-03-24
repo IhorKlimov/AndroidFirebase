@@ -20,23 +20,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import myhexaville.com.androidfirebase.databinding.ActivityMainBinding;
-import myhexaville.com.androidfirebase.retrofit.FirebaseApi;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static android.widget.Toast.LENGTH_SHORT;
-import static com.google.firebase.database.ServerValue.TIMESTAMP;
 import static myhexaville.com.androidfirebase.Constants.BOSTON_MA;
 import static myhexaville.com.androidfirebase.Constants.FORT_LAUDERDALE_FL;
-import static myhexaville.com.androidfirebase.Constants.NAMES;
 import static myhexaville.com.androidfirebase.Constants.NEW_YORK;
 
 
@@ -236,28 +233,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Saves user to database and his location to geofire using RxJava 2
-     */
-    private void createUser(GeoLocation location) {
-        User user = User.Companion.randomUser(location);
-        FirebaseApi.getInstance().addUser(user).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Log.d(LOG_TAG, "onResponse: Success");
-                } else {
-                    Log.d(LOG_TAG, "onResponse: Unsuccessful");
-                }
-            }
+//     /**
+//     * Cloud Functions API
+//     */
+//    private void createUser(GeoLocation location) {
+//        User user = User.Companion.randomUser(location);
+//        FirebaseApi.getInstance().addUser(user).enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if (response.isSuccessful()) {
+//                    Log.d(LOG_TAG, "onResponse: Success");
+//                } else {
+//                    Log.d(LOG_TAG, "onResponse: Unsuccessful");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                Log.e(LOG_TAG, "onFailure: ", t);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e(LOG_TAG, "onFailure: ", t);
-            }
-        });
+    /*
+    * Cloud Functions Trigger
+    * */
+    private void createUser(GeoLocation location) {
+        DatabaseReference user = mDatabase.child("users").push();
+        user.setValue(User.Companion.randomUser(location));
     }
 
+//    /**
+//     * Android SDK + RxJava
+//     */
+//    private void createUser(GeoLocation location) {
 //        Flowable.just(1)
 //                .map(ignore -> {
 //                    DatabaseReference user = mDatabase.child("users").push();
@@ -272,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
 //                                }), DROP))
 //                .subscribe();
 //}
+//    }
 
     private int getUserPosition(String id) {
         for (int i = 0; i < mUsers.size(); i++) {
