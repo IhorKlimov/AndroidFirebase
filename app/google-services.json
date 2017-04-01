@@ -1,0 +1,47 @@
+`{
+  "project_info": {
+    "project_number": "569161659656",
+    "firebase_url": "https://amber-torch-963.firebaseio.com",
+    "project_id": "amber-torch-963",
+    "storage_bucket": "amber-torch-963.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569161659656:android:8a25363b6e4157f4",
+        "android_client_info": {
+          "package_name": "myhexaville.com.androidfirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569161659656-308pbebbptv530tc4p3h7sd91b8tvp91.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKzDEu_xsIvRRUSQaNJra92x35HaVSZr8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569161659656-308pbebbptv530tc4p3h7sd91b8tvp91.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

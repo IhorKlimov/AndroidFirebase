@@ -13,7 +13,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class FirebaseApi {
     private static FirebaseService service;
 
-    // todo replace baseUrl with yours
     public static FirebaseService getInstance() {
         if (service == null) {
             Retrofit retrofit = new Retrofit.Builder()
