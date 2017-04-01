@@ -301,6 +301,8 @@ public class MainActivity extends AppCompatActivity {
     public void sendNotification(View view) {
         // todo Or replace "all" with registration token which you save to your backend for each user
         // todo retreived in MyFirebaseInstanceIDService
+
+        Toast.makeText(this, "Sent notification to all users", LENGTH_SHORT).show();
         FirebaseApi.getInstance()
                 .sendNotification("all", "This is title", "This is body")
                 .enqueue(new Callback<ResponseBody>() {
