@@ -3,7 +3,6 @@ package myhexaville.com.androidfirebase.retrofit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -12,15 +11,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class FirebaseApi {
-    private static FIrebaseService service;
+    private static FirebaseService service;
 
-    public static FIrebaseService getInstance() {
+    public static FirebaseService getInstance() {
         if (service == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .addConverterFactory(getGsonConverter())
                     .baseUrl("https://us-central1-amber-torch-963.cloudfunctions.net/")
                     .build();
-            service = retrofit.create(FIrebaseService.class);
+            service = retrofit.create(FirebaseService.class);
         }
 
         return  service;

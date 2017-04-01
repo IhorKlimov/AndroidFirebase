@@ -19,17 +19,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import myhexaville.com.androidfirebase.databinding.ActivityMainBinding;
+import myhexaville.com.androidfirebase.retrofit.FirebaseApi;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static myhexaville.com.androidfirebase.Constants.BOSTON_MA;
@@ -40,36 +43,36 @@ import static myhexaville.com.androidfirebase.Constants.NEW_YORK;
 public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "MainActivity";
     public static final GeoLocation CURRENT_LOCATION = FORT_LAUDERDALE_FL;
-    private ActivityMainBinding mBinding;
+    private ActivityMainBinding binding;
 
-    private DatabaseReference mDatabase;
-    private GeoFire mGeofire;
-    private Set<GeoQuery> mGeoQueries;
+    private DatabaseReference database;
+    private GeoFire geofire;
+    private Set<GeoQuery> geoQueries = new HashSet<>();
 
-    private List<User> mUsers;
-    private ValueEventListener mUserValueListener;
-    private boolean mFetchedUserIds;
-    private Set<String> mUserIdsWithListeners = new HashSet<>();
+    private List<User> users = new ArrayList<>();
+    private ValueEventListener userValueListener;
+    private boolean fetchedUserIds;
+    private Set<String> userIdsWithListeners = new HashSet<>();
 
-    private Adapter mAdapter;
-    private int mInitialListSize;
-    private int mIterationCount;
+    private Adapter adapter;
+    private int initialListSize;
+    private int iterationCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
         setupToolbar();
-
-        mGeoQueries = new HashSet();
-        mUsers = new ArrayList<>();
 
         setupFirebase();
 
         setupList();
 
         fetchUsers();
+
     }
 
     @Override
@@ -102,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        setSupportActionBar(mBinding.toolbar);
+        setSupportActionBar(binding.toolbar);
 
         if (CURRENT_LOCATION == FORT_LAUDERDALE_FL) {
             getSupportActionBar().setTitle("Fort Lauderdale, FL");
@@ -115,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchUsers() {
         List<String> userIds = new ArrayList<>();
-        GeoQuery geoQuery = mGeofire.queryAtLocation(CURRENT_LOCATION, 50);
+        GeoQuery geoQuery = geofire.queryAtLocation(CURRENT_LOCATION, 50);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
                 Log.d(LOG_TAG, "onKeyEntered: ");
-                if (!mFetchedUserIds) {
+                if (!fetchedUserIds) {
                     userIds.add(key);
                 } else {
                     addUserListener(key);
@@ -131,10 +134,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onKeyExited(String key) {
                 Log.d(LOG_TAG, "onKeyExited: ");
-                if (mUserIdsWithListeners.contains(key)) {
+                if (userIdsWithListeners.contains(key)) {
                     int position = getUserPosition(key);
-                    mUsers.remove(position);
-                    mAdapter.notifyItemRemoved(position);
+                    users.remove(position);
+                    adapter.notifyItemRemoved(position);
                 }
             }
 
@@ -146,18 +149,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGeoQueryReady() {
                 Log.d(LOG_TAG, "onGeoQueryReady: ");
-                mInitialListSize = userIds.size();
-                mIterationCount = 0;
+                initialListSize = userIds.size();
+                iterationCount = 0;
                 for (String userId : userIds) {
                     addUserListener(userId);
                 }
             }
 
             private void addUserListener(String userId) {
-                mDatabase.child("users").child(userId)
-                        .addValueEventListener(mUserValueListener);
+                database.child("users").child(userId)
+                        .addValueEventListener(userValueListener);
 
-                mUserIdsWithListeners.add(userId);
+                userIdsWithListeners.add(userId);
             }
 
             @Override
@@ -166,30 +169,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mGeoQueries.add(geoQuery);
+        geoQueries.add(geoQuery);
     }
 
     private void setupList() {
-        mBinding.list.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new Adapter(this, mUsers);
-        mBinding.list.setAdapter(mAdapter);
+        binding.list.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new Adapter(this, users);
+        binding.list.setAdapter(adapter);
     }
 
     private void setupFirebase() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mGeofire = new GeoFire(mDatabase.child("geofire"));
+        database = FirebaseDatabase.getInstance().getReference();
+        geofire = new GeoFire(database.child("geofire"));
 
         setupListeners();
     }
 
     private void setupListeners() {
-        mUserValueListener = new ValueEventListener() {
+        userValueListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User u = dataSnapshot.getValue(User.class);
                 u.setId(dataSnapshot.getKey());
 
-                if (mUsers.contains(u)) {
+                if (users.contains(u)) {
                     userUpdated(u);
                 } else {
                     newUser(u);
@@ -198,21 +201,21 @@ public class MainActivity extends AppCompatActivity {
 
             private void newUser(User u) {
                 Log.d(LOG_TAG, "onDataChange: new user");
-                mIterationCount++;
-                mUsers.add(0, u);
-                if (!mFetchedUserIds && mIterationCount == mInitialListSize) {
-                    mFetchedUserIds = true;
-                    mAdapter.setUsers(mUsers);
+                iterationCount++;
+                users.add(0, u);
+                if (!fetchedUserIds && iterationCount == initialListSize) {
+                    fetchedUserIds = true;
+                    adapter.setUsers(users);
                 } else {
-                    mAdapter.notifyItemInserted(0);
+                    adapter.notifyItemInserted(0);
                 }
             }
 
             private void userUpdated(User u) {
                 Log.d(LOG_TAG, "onDataChange: update");
                 int position = getUserPosition(u.getId());
-                mUsers.set(position, u);
-                mAdapter.notifyItemChanged(position);
+                users.set(position, u);
+                adapter.notifyItemChanged(position);
             }
 
             @Override
@@ -223,18 +226,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void removeListeners() {
-        for (GeoQuery geoQuery : mGeoQueries) {
+        for (GeoQuery geoQuery : geoQueries) {
             geoQuery.removeAllListeners();
         }
 
-        for (String userId : mUserIdsWithListeners) {
-            mDatabase.child("users").child(userId)
-                    .removeEventListener(mUserValueListener);
+        for (String userId : userIdsWithListeners) {
+            database.child("users").child(userId)
+                    .removeEventListener(userValueListener);
         }
     }
 
+    /*
+    * Cloud Functions Trigger. Geofire populated using Cloud Functions Trigger on backend side
+    * */
+    private void createUser(GeoLocation location) {
+        DatabaseReference user = database.child("users").push();
+        user.setValue(User.Companion.randomUser(location));
+    }
+
+    //todo Here's two more different ways of saving data
+
 //     /**
-//     * Cloud Functions API
+//     * Cloud Functions API. Same for Geofire, but with no Android Firebase SDK usage
+//       More abstraction = better
 //     */
 //    private void createUser(GeoLocation location) {
 //        User user = User.Companion.randomUser(location);
@@ -255,26 +269,18 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //    }
 
-    /*
-    * Cloud Functions Trigger
-    * */
-    private void createUser(GeoLocation location) {
-        DatabaseReference user = mDatabase.child("users").push();
-        user.setValue(User.Companion.randomUser(location));
-    }
-
 //    /**
-//     * Android SDK + RxJava
+//     * Android Firebase SDK + RxJava. Not new. Pretty bad
 //     */
 //    private void createUser(GeoLocation location) {
 //        Flowable.just(1)
 //                .map(ignore -> {
-//                    DatabaseReference user = mDatabase.child("users").push();
+//                    DatabaseReference user = database.child("users").push();
 //                    user.setValue(User.Companion.randomUser(location));
 //                    return user.getKey();
 //                })
 //                .flatMap(userId -> Flowable.create(
-//                        e -> mGeofire.setLocation(userId, location,
+//                        e -> geofire.setLocation(userId, location,
 //                                (key, error) -> {
 //                                    e.onNext(key);
 //                                    e.onComplete();
@@ -284,27 +290,30 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private int getUserPosition(String id) {
-        for (int i = 0; i < mUsers.size(); i++) {
-            if (mUsers.get(i).getId().equals(id)) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(id)) {
                 return i;
             }
         }
         return -1;
     }
 
-    public void readRandom(View view) {
-        if (mUsers.size() == 0) {
-            Toast.makeText(
-                    this,
-                    "Will print random user location when you add one close to you. Open Menu"
-                    , LENGTH_SHORT).show();
-            return;
-        }
-        int randomPosition = (int) (Math.random() * mUsers.size());
-        User user = mAdapter.getUser(randomPosition);
-        Toast.makeText(
-                this,
-                "Location of " + user.getName() + " is " + user.getLatitude() + " " + user.getLongitude()
-                , LENGTH_SHORT).show();
+    public void sendNotification(View view) {
+        // todo Or replace "all" with registration token which you save to your backend for each user
+        // todo retreived in MyFirebaseInstanceIDService
+        FirebaseApi.getInstance()
+                .sendNotification("all", "This is title", "This is body")
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
+
     }
 }

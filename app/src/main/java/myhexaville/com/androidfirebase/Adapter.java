@@ -23,25 +23,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.firebase.geofire.GeoLocation;
-
 import java.util.List;
 
 import static myhexaville.com.androidfirebase.Util.sizeOf;
 
 public class Adapter extends RecyclerView.Adapter<Holder> {
-    private Context mContext;
-    private List<User> mUsers;
+    private Context context;
+    private List<User> users;
 
     public Adapter(Context c, List<User> users) {
-        mContext = c;
-        mUsers = users;
+        context = c;
+        this.users = users;
     }
 
     @Override
     public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewDataBinding binding = DataBindingUtil.inflate(
-                LayoutInflater.from(mContext),
+                LayoutInflater.from(context),
                 R.layout.list_item,
                 parent,
                 false);
@@ -51,25 +49,25 @@ public class Adapter extends RecyclerView.Adapter<Holder> {
 
     @Override
     public void onBindViewHolder(Holder holder, int position) {
-        User u = mUsers.get(position);
+        User u = users.get(position);
         holder.binding.setUser(u);
     }
 
     @Override
     public int getItemCount() {
-        return sizeOf(mUsers);
+        return sizeOf(users);
     }
 
     public void setUsers(List<User> list) {
-        mUsers = list;
+        users = list;
         notifyDataSetChanged();
     }
 
     public User getUser(int position) {
-        if (position > mUsers.size() - 1) {
+        if (position > users.size() - 1) {
             return new User();
         } else {
-            return mUsers.get(position);
+            return users.get(position);
         }
     }
 
