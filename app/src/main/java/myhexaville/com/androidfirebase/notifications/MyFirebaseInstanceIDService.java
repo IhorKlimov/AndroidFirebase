@@ -14,5 +14,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         Log.d(LOG_TAG, "Refreshed token: " + refreshedToken);
         //  todo implement this for your backend
 //        sendRegistrationToServer(refreshedToken);
+
     }
 }

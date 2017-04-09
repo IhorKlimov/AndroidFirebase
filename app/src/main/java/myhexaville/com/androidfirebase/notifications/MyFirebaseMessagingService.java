@@ -1,5 +1,6 @@
 package myhexaville.com.androidfirebase.notifications;
 
+import android.app.Notification;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;

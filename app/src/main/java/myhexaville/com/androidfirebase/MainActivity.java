@@ -1,6 +1,7 @@
 package myhexaville.com.androidfirebase;
 
 import android.databinding.DataBindingUtil;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,12 +20,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import myhexaville.com.androidfirebase.databinding.ActivityMainBinding;
@@ -57,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private Adapter adapter;
     private int initialListSize;
     private int iterationCount;
+    private Location from;
+    private Map<String, Location> userIdsToLocations = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
         setupList();
 
         fetchUsers();
+
+        from = new Location("from");
+        from.setLatitude(CURRENT_LOCATION.latitude);
+        from.setLongitude(CURRENT_LOCATION.longitude);
 
     }
 
@@ -117,15 +128,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchUsers() {
-        List<String> userIds = new ArrayList<>();
-        GeoQuery geoQuery = geofire.queryAtLocation(CURRENT_LOCATION, 50);
+        GeoQuery geoQuery = geofire.queryAtLocation(CURRENT_LOCATION, 50000000);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                Log.d(LOG_TAG, "onKeyEntered: ");
+                Location to = new Location("to");
+                to.setLatitude(location.latitude);
+                to.setLongitude(location.longitude);
                 if (!fetchedUserIds) {
-                    userIds.add(key);
+                    userIdsToLocations.put(key, to);
                 } else {
                     addUserListener(key);
                 }
@@ -149,11 +161,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGeoQueryReady() {
                 Log.d(LOG_TAG, "onGeoQueryReady: ");
-                initialListSize = userIds.size();
+                initialListSize = userIdsToLocations.size();
                 iterationCount = 0;
-                for (String userId : userIds) {
-                    addUserListener(userId);
-                }
+
+                userIdsToLocations.keySet().forEach(this::addUserListener);
             }
 
             private void addUserListener(String userId) {
@@ -191,6 +202,9 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User u = dataSnapshot.getValue(User.class);
                 u.setId(dataSnapshot.getKey());
+                Location location = userIdsToLocations.get(dataSnapshot.getKey());
+                u.setLatitude(location.getLatitude());
+                u.setLongitude(location.getLongitude());
 
                 if (users.contains(u)) {
                     userUpdated(u);
@@ -205,6 +219,9 @@ public class MainActivity extends AppCompatActivity {
                 users.add(0, u);
                 if (!fetchedUserIds && iterationCount == initialListSize) {
                     fetchedUserIds = true;
+
+                    sortByDistanceFromMe();
+
                     adapter.setUsers(users);
                 } else {
                     adapter.notifyItemInserted(0);
@@ -223,6 +240,34 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "onCancelled: ", databaseError.toException());
             }
         };
+    }
+
+    private void sortByDistanceFromMe() {
+        Collections.sort(users, (u1, u2) -> {
+            Location first = new Location("");
+            first.setLatitude(u1.getLatitude());
+            first.setLongitude(u1.getLongitude());
+
+            Location second = new Location("");
+            second.setLatitude(u2.getLatitude());
+            second.setLongitude(u2.getLongitude());
+
+            if (from.distanceTo(first) > from.distanceTo(second)) {
+                return 1;
+            } else if (from.distanceTo(first) < from.distanceTo(second)) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (User user : users) {
+            Location location = new Location("");
+            location.setLatitude(user.getLatitude());
+            location.setLongitude(user.getLongitude());
+
+            Log.d(LOG_TAG, "newUser: distance "+ from.distanceTo(location));
+        }
     }
 
     private void removeListeners() {
