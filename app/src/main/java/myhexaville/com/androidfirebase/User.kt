@@ -16,7 +16,7 @@
 
 package myhexaville.com.androidfirebase
 
-import com.firebase.geofire.GeoLocation
+import com.algolia.search.saas.Query.LatLng
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.ServerValue.TIMESTAMP
 import myhexaville.com.androidfirebase.Constants.NAMES
@@ -33,10 +33,10 @@ class User(
         @Exclude var id: String? = null) {
 
     companion object {
-        fun randomUser(location: GeoLocation): User {
+        fun randomUser(location: LatLng): User {
             val name = randomName
             val age = randomAge
-            return User(name, age, TIMESTAMP, location.latitude, location.longitude, "0")
+            return User(name, age, TIMESTAMP, location.lat, location.lng, null)
         }
 
         val randomName: String

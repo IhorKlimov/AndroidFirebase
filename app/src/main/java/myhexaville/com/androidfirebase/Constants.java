@@ -16,7 +16,9 @@
 
 package myhexaville.com.androidfirebase;
 
-import com.firebase.geofire.GeoLocation;
+
+import com.algolia.search.saas.Query;
+import com.algolia.search.saas.Query.LatLng;
 
 public class Constants {
     public static final String[] NAMES = new String[]{
@@ -36,15 +38,15 @@ public class Constants {
             "Stuart",
     };
 
-    public static final GeoLocation NEW_YORK = new GeoLocation(40.730292, -73.990401);
-    public static final GeoLocation FORT_LAUDERDALE_FL = new GeoLocation(26.128536, -80.130648);
-    public static final GeoLocation BOSTON_MA = new GeoLocation(42.357741, -71.058799);
+    public static final LatLng NEW_YORK = new LatLng(40.730292, -73.990401);
+    public static final LatLng FORT_LAUDERDALE_FL = new LatLng(26.128536, -80.130648);
+    public static final LatLng BOSTON_MA = new LatLng(42.357741, -71.058799);
 
-    public static final GeoLocation[] LOCATIONS = {
+    public static final LatLng[] LOCATIONS = {
             NEW_YORK, FORT_LAUDERDALE_FL, BOSTON_MA
     };
 
-    public static GeoLocation randomLocation() {
+    public static LatLng randomLocation() {
         return LOCATIONS[(int) (Math.random() * LOCATIONS.length)];
     }
 }

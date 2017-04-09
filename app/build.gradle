@@ -69,6 +69,7 @@ dependencies {
 
     compile 'com.google.firebase:firebase-database:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
-    compile 'com.firebase:geofire-android:2.1.1'
+
+    compile 'com.algolia:algoliasearch-android:3.5'
 }
 apply plugin: 'com.google.gms.google-services'
