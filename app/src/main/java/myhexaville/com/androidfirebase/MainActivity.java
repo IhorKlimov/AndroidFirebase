@@ -24,7 +24,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Adapter adapter;
     private int initialListSize;
     private int iterationCount;
-    private Location from;
+    private Location me;
     private Map<String, Location> userIdsToLocations = new HashMap<>();
 
 
@@ -80,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
 
         fetchUsers();
 
-        from = new Location("from");
-        from.setLatitude(CURRENT_LOCATION.latitude);
-        from.setLongitude(CURRENT_LOCATION.longitude);
+        me = new Location("me");
+        me.setLatitude(CURRENT_LOCATION.latitude);
+        me.setLongitude(CURRENT_LOCATION.longitude);
 
     }
 
@@ -254,9 +253,9 @@ public class MainActivity extends AppCompatActivity {
             second.setLatitude(u2.getLatitude());
             second.setLongitude(u2.getLongitude());
 
-            if (from.distanceTo(first) > from.distanceTo(second)) {
+            if (me.distanceTo(first) > me.distanceTo(second)) {
                 return 1;
-            } else if (from.distanceTo(first) < from.distanceTo(second)) {
+            } else if (me.distanceTo(first) < me.distanceTo(second)) {
                 return -1;
             } else {
                 return 0;
@@ -268,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
             location.setLatitude(user.getLatitude());
             location.setLongitude(user.getLongitude());
 
-            Log.d(LOG_TAG, "newUser: distance "+ from.distanceTo(location));
+            Log.d(LOG_TAG, "newUser: distance "+ me.distanceTo(location));
         }
     }
 
