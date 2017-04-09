@@ -224,7 +224,9 @@ public class MainActivity extends AppCompatActivity {
 
                     adapter.setUsers(users);
                 } else {
-                    adapter.notifyItemInserted(0);
+//                    adapter.notifyItemInserted(0);
+                    sortByDistanceFromMe();
+                    adapter.notifyDataSetChanged();
                 }
             }
 
