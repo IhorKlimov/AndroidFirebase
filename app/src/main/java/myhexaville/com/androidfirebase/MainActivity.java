@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchUsers() {
-        GeoQuery geoQuery = geofire.queryAtLocation(CURRENT_LOCATION, 50000000);
+        GeoQuery geoQuery = geofire.queryAtLocation(CURRENT_LOCATION, 50);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
@@ -163,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
             public void onGeoQueryReady() {
                 Log.d(LOG_TAG, "onGeoQueryReady: ");
                 initialListSize = userIdsToLocations.size();
+                if (initialListSize == 0) {
+                    fetchedUserIds = true;
+                }
                 iterationCount = 0;
 
                 userIdsToLocations.keySet().forEach(this::addUserListener);
