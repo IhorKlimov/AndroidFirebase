@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!fetchedUserIds) {
                     userIdsToLocations.put(key, to);
                 } else {
+                    userIdsToLocations.put(key, to);
                     addUserListener(key);
                 }
             }
@@ -222,10 +224,9 @@ public class MainActivity extends AppCompatActivity {
                     sortByDistanceFromMe();
 
                     adapter.setUsers(users);
-                } else {
-//                    adapter.notifyItemInserted(0);
+                } else if(fetchedUserIds) {
                     sortByDistanceFromMe();
-                    adapter.notifyDataSetChanged();
+                    adapter.notifyItemInserted(getIndexOfNewUser(u));
                 }
             }
 
@@ -241,6 +242,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "onCancelled: ", databaseError.toException());
             }
         };
+    }
+
+    private int getIndexOfNewUser(User u) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getId().equals(u.getId())) {
+                Log.d(LOG_TAG, "getIndexOfNewUser: "+ i);
+                return i;
+            }
+        }
+        throw new RuntimeException();
     }
 
     private void sortByDistanceFromMe() {
