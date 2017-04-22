@@ -1,6 +1,8 @@
 package myhexaville.com.androidfirebase;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.icu.util.Calendar;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,13 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,7 +92,52 @@ public class MainActivity extends AppCompatActivity {
         me.setLatitude(CURRENT_LOCATION.latitude);
         me.setLongitude(CURRENT_LOCATION.longitude);
 
+        FirebaseDatabase.getInstance().getReference()
+                .child("geofire")
+                .child("-KhHWr16ZYm0TuoUEON2")
+                .child("l").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                double latitude = dataSnapshot.child("0").getValue(Double.class);
+                double longitude = dataSnapshot.child("1").getValue(Double.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+//        scheduleJob(this);
     }
+
+//    public static void scheduleJob(Context context) {
+//        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+//        Calendar c = Calendar.getInstance();
+//        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+//        c.add(Calendar.DAY_OF_MONTH, 7);
+//        c.set(Calendar.HOUR, 10);
+//        c.set(Calendar.MINUTE, 0);
+//
+//        Log.d(LOG_TAG, "onCreate: " + c.get(Calendar.DAY_OF_MONTH));
+//
+//        int start = (int) (c.getTimeInMillis() - System.currentTimeMillis()) / 1000;
+//        int end = start + 60;
+//        Log.d(LOG_TAG, "onCreate: starting job in " + start + " seconds ");
+//
+//        Job myJob = dispatcher.newJobBuilder()
+//                .setService(MyJobService.class)
+//                .setTag("my-unique-tag")
+//                .setRecurring(false)
+//                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+//                .setTrigger(Trigger.executionWindow(start, end))
+//                .setReplaceCurrent(true)
+//                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+//                .build();
+//
+//        dispatcher.mustSchedule(myJob);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -227,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                     sortByDistanceFromMe();
 
                     adapter.setUsers(users);
-                } else if(fetchedUserIds) {
+                } else if (fetchedUserIds) {
                     sortByDistanceFromMe();
                     adapter.notifyItemInserted(getIndexOfNewUser(u));
                 }
@@ -250,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
     private int getIndexOfNewUser(User u) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId().equals(u.getId())) {
-                Log.d(LOG_TAG, "getIndexOfNewUser: "+ i);
+                Log.d(LOG_TAG, "getIndexOfNewUser: " + i);
                 return i;
             }
         }
@@ -281,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
             location.setLatitude(user.getLatitude());
             location.setLongitude(user.getLongitude());
 
-            Log.d(LOG_TAG, "newUser: distance "+ me.distanceTo(location));
+            Log.d(LOG_TAG, "newUser: distance " + me.distanceTo(location));
         }
     }
 

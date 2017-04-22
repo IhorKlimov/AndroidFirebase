@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Android Firebase</string>
     <string name="action_settings">Settings</string>
+    <string name="google_maps_key">AIzaSyDq-F5pmIpxH1afyELah-tBALMy6qeVK_Q</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

@@ -16,6 +16,8 @@
 
 package myhexaville.com.androidfirebase;
 
+import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -36,10 +38,18 @@ public class Holder extends RecyclerView.ViewHolder {
         binding = DataBindingUtil.bind(itemView);
         itemView.setOnClickListener(v -> {
             User user = binding.getUser();
+            Context c = itemView.getContext();
             Toast.makeText(
-                    itemView.getContext(),
+                    c,
                     "Location of " + user.getName() + " is " + user.getLatitude() + " " + user.getLongitude()
                     , LENGTH_SHORT).show();
+
+            Intent intent = new Intent(c, MapsActivity.class)
+                    .putExtra("lat", user.getLatitude() + "")
+                    .putExtra("lng", user.getLongitude() + "")
+                    .putExtra("name", user.getName());
+
+            c.startActivity(intent);
         });
     }
 }
