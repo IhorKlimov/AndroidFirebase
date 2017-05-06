@@ -72,6 +72,6 @@ dependencies {
     compile 'com.firebase:firebase-jobdispatcher-with-gcm-dep:0.6.0'
     compile 'com.google.android.gms:play-services:10.0.1'
     testCompile 'junit:junit:4.12'
-    kapt 'com.android.databinding:compiler:2.3.0'
+    kapt 'com.android.databinding:compiler:2.3.1'
 }
 apply plugin: 'com.google.gms.google-services'
