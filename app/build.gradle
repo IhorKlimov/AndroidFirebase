@@ -1,13 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'kotlin-android'
 
 buildscript {
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.5.0'
     }
 }
 
@@ -17,7 +13,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     dataBinding {
         enabled true
     }
@@ -25,7 +21,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         applicationId "myhexaville.com.androidfirebase"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -34,14 +30,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    productFlavors {
-        modern {
-            minSdkVersion 21
-        }
-        legacy {
-            minSdkVersion 16
         }
     }
 }
@@ -57,21 +45,19 @@ dependencies {
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-
-
-
     compile 'io.reactivex.rxjava2:rxjava:2.0.5'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.android.support:appcompat-v7:25.2.0'
-    compile 'com.android.support:design:25.2.0'
+    compile 'com.android.support:design:25.4.0'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
-    compile 'com.google.firebase:firebase-database:10.0.1'
-    compile 'com.google.firebase:firebase-messaging:10.0.1'
+    compile 'com.google.firebase:firebase-database:11.6.0'
+    compile 'com.google.firebase:firebase-messaging:11.6.0'
     compile 'com.firebase:geofire-android:2.1.1'
     compile 'com.firebase:firebase-jobdispatcher-with-gcm-dep:0.6.0'
-    compile 'com.google.android.gms:play-services:10.0.1'
+    compile 'com.google.android.gms:play-services:11.6.0'
+    compile 'com.google.firebase:firebase-firestore:11.6.0'
     testCompile 'junit:junit:4.12'
-    kapt 'com.android.databinding:compiler:2.3.1'
+    kapt 'com.android.databinding:compiler:3.0.0'
 }
 apply plugin: 'com.google.gms.google-services'
