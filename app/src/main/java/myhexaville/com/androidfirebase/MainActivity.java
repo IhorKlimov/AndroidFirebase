@@ -92,23 +92,6 @@ public class MainActivity extends AppCompatActivity {
         me.setLatitude(CURRENT_LOCATION.latitude);
         me.setLongitude(CURRENT_LOCATION.longitude);
 
-        FirebaseDatabase.getInstance().getReference()
-                .child("geofire")
-                .child("-KhHWr16ZYm0TuoUEON2")
-                .child("l").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                double latitude = dataSnapshot.child("0").getValue(Double.class);
-                double longitude = dataSnapshot.child("1").getValue(Double.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
 //        scheduleJob(this);
     }
 
